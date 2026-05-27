@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-27T13:03:00Z",
+  "title": "Design System: ZipShift",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Merchant Indigo", "canonical": "oklch(60% 0.20 250)", "tonalRamp": ["#312e81", "#3730a3", "#4338ca", "#4f46e5", "#6366f1", "#818cf8", "#a5b4fc", "#c7d2fe"] },
+      "primary-bank": { "role": "primary", "displayName": "Bank Emerald", "canonical": "oklch(62% 0.18 150)", "tonalRamp": ["#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"] },
+      "neutral-bg": { "role": "neutral", "displayName": "Slate Tint Base", "canonical": "oklch(98% 0.005 240)", "tonalRamp": ["#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1", "#94a3b8", "#64748b", "#475569", "#334155"] },
+      "neutral-surface": { "role": "neutral", "displayName": "White Surface", "canonical": "oklch(100% 0 0)", "tonalRamp": ["#ffffff", "#fafafa", "#f5f5f5", "#e5e5e5", "#d4d4d4", "#a3a3a3", "#737373", "#525252"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "App branding and main headers." },
+      "body": { "displayName": "Body", "purpose": "File lists, description text, and messages." }
+    },
+    "shadows": [
+      { "name": "active-focus", "value": "0 4px 12px rgba(15, 23, 42, 0.05)", "purpose": "Applied only to interactive items during hover/focus." }
+    ],
+    "motion": [
+      { "name": "standard-fade", "value": "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Hover transitions for tabs, buttons, and list elements." }
+    ],
+    "breakpoints": [
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Merchant Tab",
+      "kind": "nav",
+      "refersTo": "nav-switcher",
+      "description": "Navigation tab for Merchant Mode.",
+      "html": "<button class=\"ds-tab ds-tab-merchant ds-tab-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"></path><circle cx=\"12\" cy=\"7\" r=\"4\"></circle></svg>Merchants Portal</button>",
+      "css": ".ds-tab { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 9999px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s ease; color: #475569; background: transparent; } .ds-tab-active { background-color: #4f46e5; color: #ffffff; }"
+    },
+    {
+      "name": "Bank Tab",
+      "kind": "nav",
+      "refersTo": "nav-switcher",
+      "description": "Navigation tab for Bank Mode.",
+      "html": "<button class=\"ds-tab ds-tab-bank ds-tab-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2\" ry=\"2\"></rect><path d=\"M12 18V6\"></path><path d=\"M6 12h12\"></path></svg>Banks Portal</button>",
+      "css": ".ds-tab { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 8px 20px; border-radius: 9999px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s ease; color: #475569; background: transparent; } .ds-tab-active { background-color: #059669; color: #ffffff; }"
+    },
+    {
+      "name": "Merchant Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button for Merchant Mode.",
+      "html": "<button class=\"ds-btn-merchant\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"5 3 19 12 5 21 5 3\"></polygon></svg>Zip and Download</button>",
+      "css": ".ds-btn-merchant { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #4f46e5; color: #ffffff; transition: background-color 0.15s ease; } .ds-btn-merchant:hover { background-color: #3730a3; }"
+    },
+    {
+      "name": "Bank Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button for Bank Mode.",
+      "html": "<button class=\"ds-btn-bank\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"5 3 19 12 5 21 5 3\"></polygon></svg>Zip and Download</button>",
+      "css": ".ds-btn-bank { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #059669; color: #ffffff; transition: background-color 0.15s ease; } .ds-btn-bank:hover { background-color: #065f46; }"
+    },
+    {
+      "name": "Dropzone Panel",
+      "kind": "card",
+      "refersTo": "dropzone",
+      "description": "Drag and drop area for uploading files.",
+      "html": "<div class=\"ds-dropzone\"><svg class=\"ds-dropzone-icon\" width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"17 8 12 3 7 8\"></polyline><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"></line></svg><p class=\"ds-dropzone-title\">Drag & drop files here, or click to browse</p><p class=\"ds-dropzone-desc\">Upload CSV and PDF transaction report files</p></div>",
+      "css": ".ds-dropzone { font-family: 'Inter', sans-serif; border: 2px dashed #e2e8f0; border-radius: 8px; padding: 48px 32px; text-align: center; cursor: pointer; background-color: #ffffff; display: flex; flex-direction: column; align-items: center; gap: 16px; transition: border-color 0.15s ease, background-color 0.15s ease; } .ds-dropzone:hover { border-color: #4f46e5; background-color: #f5f3ff; } .ds-dropzone-icon { color: #64748b; } .ds-dropzone-title { font-size: 16px; font-weight: 600; color: #0f172a; margin: 0; } .ds-dropzone-desc { font-size: 13px; color: #64748b; margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Airy Ledger",
+    "overview": "ZipShift is designed to feel like a modern, lightweight digital ledger—airy, clean, and professional. It brings structure and calm to the daily operational task of packaging files. By shifting from a dark-themed portal to a light, pastel-accented workspace, it reduces visual strain under typical office ambient lighting. The design emphasizes immediate feedback and zero clutter, keeping the financial operator's focus entirely on their data validation and zipping workflow.",
+    "keyCharacteristics": [
+      "Calming light-mode slate background with high text contrast for readability.",
+      "Mode-based color styling (soft Indigo/Violet for Merchant Portal, soft Emerald/Teal for Bank Portal).",
+      "Flat-layered layout with clean border lines (1px) and subtle active-state elevation.",
+      "Consistent typography hierarchy using Inter or clean system sans-serif."
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "The primary accent is used on ≤10% of any given screen. Its rarity is the point, guiding the user's eye to primary actions.", "section": "colors" },
+      { "name": "The Tinted Neutral Rule", "body": "Never use pure black (#000000) or pure grey (#808080) for text or borders. Every neutral must be tinted toward the slate-blue hue.", "section": "colors" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Shadows appear only as a response to active states (hover, focus) or transient alerts to highlight interactivity.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use clear visual feedback for all drag-and-drop actions, displaying exact file counts and sizes.",
+      "Do highlight that no data leaves the browser (\"100% client-side security\" indicator).",
+      "Do ensure all interactive elements support full keyboard focus outlines for accessibility."
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored stripe on cards or list items.",
+      "Don't use dark mode or dark purple/blue gradients as defaults. Keep the interface light, airy, and friendly.",
+      "Don't use glassmorphism or blur filters as background decorations. Keep borders crisp and solid.",
+      "Don't use nested cards. If a list of files is inside a package, use a clean, flat table layout inside the package block."
+    ]
+  }
+}

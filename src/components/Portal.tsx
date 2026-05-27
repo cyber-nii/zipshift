@@ -12,7 +12,8 @@ import {
   Trash2, 
   FileText,
   Play,
-  X
+  X,
+  ShieldCheck
 } from "lucide-react";
 import { groupFiles, FileGroup } from "../utils/zipper";
 
@@ -170,26 +171,34 @@ export default function Portal() {
       <header className="app-header">
         <div className="brand">
           <FolderArchive className="brand-icon" />
-          <h1 className="brand-title">ZipShift</h1>
+          <h1 className="brand-title">
+            Zip<span className="brand-highlight">Shift</span>
+          </h1>
         </div>
-        <nav className="nav-switcher">
-          <button 
-            className={`nav-tab ${mode === "merchant" ? "active" : ""}`}
-            onClick={() => { if (!isProcessing) setMode("merchant"); }}
-            disabled={isProcessing}
-          >
-            <Store size={16} />
-            Merchants Portal
-          </button>
-          <button 
-            className={`nav-tab ${mode === "bank" ? "active" : ""}`}
-            onClick={() => { if (!isProcessing) setMode("bank"); }}
-            disabled={isProcessing}
-          >
-            <Building2 size={16} />
-            Banks Portal
-          </button>
-        </nav>
+        <div className="header-right">
+          <div className="secure-badge" title="All file processing is done locally in your browser. No files are ever sent to a server.">
+            <ShieldCheck className="secure-badge-icon" />
+            100% Secure Client-Side
+          </div>
+          <nav className="nav-switcher">
+            <button 
+              className={`nav-tab ${mode === "merchant" ? "active" : ""}`}
+              onClick={() => { if (!isProcessing) setMode("merchant"); }}
+              disabled={isProcessing}
+            >
+              <Store size={16} />
+              Merchants Portal
+            </button>
+            <button 
+              className={`nav-tab ${mode === "bank" ? "active" : ""}`}
+              onClick={() => { if (!isProcessing) setMode("bank"); }}
+              disabled={isProcessing}
+            >
+              <Building2 size={16} />
+              Banks Portal
+            </button>
+          </nav>
+        </div>
       </header>
 
       {/* Main Work Area */}
@@ -231,12 +240,12 @@ export default function Portal() {
             <div className="alert alert-warning">
               <AlertTriangle className="alert-icon" />
               <div>
-                <p style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+                <p className="alert-title">
                   Ignored {invalidFiles.length} file{invalidFiles.length > 1 ? "s" : ""} (Incorrect format for {mode === "merchant" ? "Merchant" : "Bank"} mode):
                 </p>
-                <ul style={{ paddingLeft: "1.25rem", fontSize: "0.75rem" }}>
+                <ul className="alert-list">
                   {invalidFiles.slice(0, 5).map((inv, idx) => (
-                    <li key={idx} style={{ marginBottom: "0.15rem" }}>
+                    <li key={idx} className="alert-list-item">
                       <strong>{inv.file.name}</strong>: {inv.error}
                     </li>
                   ))}
@@ -244,7 +253,7 @@ export default function Portal() {
                     <li>...and {invalidFiles.length - 5} more files</li>
                   )}
                 </ul>
-                <p style={{ fontSize: "0.75rem", marginTop: "0.5rem", opacity: 0.8 }}>
+                <p className="alert-suggestion">
                   Switch to the other portal tab if you are processing the other type of files.
                 </p>
               </div>
@@ -256,7 +265,6 @@ export default function Portal() {
             <div className="dashboard-actions">
               <button 
                 className="btn btn-primary" 
-                style={{ flex: 1 }}
                 onClick={handleGenerateZips}
                 disabled={isProcessing || groups.length === 0}
               >
@@ -276,14 +284,14 @@ export default function Portal() {
         </section>
 
         {/* Right Side: ZIP Packages Preview */}
-        <section className="panel" style={{ minHeight: "350px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <section className="panel package-panel">
+          <div className="panel-header-wrapper">
             <h2 className="panel-title">
               <FolderArchive size={20} className="text-secondary" />
               ZIP Packages ({groups.length})
             </h2>
             {isProcessing && (
-              <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--primary)" }}>
+              <span className="panel-header-percentage">
                 {progress}%
               </span>
             )}
@@ -298,8 +306,8 @@ export default function Portal() {
           {groups.length === 0 ? (
             <div className="empty-state">
               <FolderArchive className="empty-state-icon" />
-              <p style={{ fontWeight: 600 }}>No packages to display</p>
-              <p style={{ fontSize: "0.8125rem" }}>
+              <p className="empty-state-title">No packages to display</p>
+              <p className="empty-state-desc">
                 Upload files on the left. They will be parsed, dated back 1 day, and grouped by prefix.
               </p>
             </div>
@@ -329,7 +337,7 @@ export default function Portal() {
                         <span className="package-status status-zipping">Zipping...</span>
                       )}
                       {status === "success" && (
-                        <span className="package-status status-success" style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                        <span className="package-status status-success">
                           <CheckCircle2 size={12} />
                           Zipped
                         </span>
@@ -341,7 +349,7 @@ export default function Portal() {
                       <thead>
                         <tr>
                           <th>File Name (Keeps Date)</th>
-                          <th style={{ textAlign: "right" }}>Size</th>
+                          <th className="file-size-cell">Size</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -349,26 +357,20 @@ export default function Portal() {
                         {group.files.map((file, idx) => (
                           <tr key={idx}>
                             <td className="file-name-cell">
-                              <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <FileText size={12} style={{ opacity: 0.6 }} />
+                              <span className="file-name-wrapper">
+                                <FileText size={12} className="file-icon" />
                                 {file.name}
                               </span>
                             </td>
-                            <td style={{ textAlign: "right" }}>{formatBytes(file.size)}</td>
-                            <td style={{ textAlign: "right", width: "40px" }}>
+                            <td className="file-size-cell">{formatBytes(file.size)}</td>
+                            <td className="file-action-cell">
                               <button 
                                 onClick={() => handleRemoveFile(file)}
-                                style={{ 
-                                  background: "none", 
-                                  border: "none", 
-                                  color: "var(--text-muted)", 
-                                  cursor: "pointer",
-                                  padding: "0.25rem"
-                                }}
+                                className="btn-remove-file"
                                 disabled={isProcessing}
                                 title="Remove file"
                               >
-                                <X size={14} className="hover:text-red-500" />
+                                <X size={14} />
                               </button>
                             </td>
                           </tr>
