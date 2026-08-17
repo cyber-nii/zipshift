@@ -15,7 +15,7 @@ import {
   X,
   ShieldCheck
 } from "lucide-react";
-import { groupFiles, FileGroup } from "../utils/zipper";
+import { groupFiles, groupFilesByDateRange, FileGroup } from "../utils/zipper";
 
 export default function Portal() {
   const [mode, setMode] = useState<"merchant" | "bank">("merchant");
@@ -26,23 +26,51 @@ export default function Portal() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [zipStatuses, setZipStatuses] = useState<Record<string, "pending" | "zipping" | "success" | "error">>({});
   const [progress, setProgress] = useState(0);
-  
+  const [rangeMode, setRangeMode] = useState(false);
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync groups when mode or uploaded files change
+  // Sync groups when mode, uploaded files, or date range settings change
   useEffect(() => {
-    const { groups: newGroups, invalidFiles: newInvalids } = groupFiles(files, mode);
-    setGroups(newGroups);
-    setInvalidFiles(newInvalids);
-    
-    // Reset individual status keys
-    const initialStatuses: Record<string, "pending"> = {};
-    newGroups.forEach(g => {
-      initialStatuses[g.targetZipName] = "pending";
-    });
-    setZipStatuses(initialStatuses);
-    setProgress(0);
-  }, [files, mode]);
+    if (rangeMode) {
+      if (!rangeStart || !rangeEnd) {
+        setGroups([]);
+        setInvalidFiles([]);
+        setZipStatuses({});
+        setProgress(0);
+        return;
+      }
+      // Parse as local dates (not UTC) so the range matches the calendar day picked
+      const [sy, sm, sd] = rangeStart.split("-").map(Number);
+      const [ey, em, ed] = rangeEnd.split("-").map(Number);
+      const startDate = new Date(sy, sm - 1, sd);
+      const endDate = new Date(ey, em - 1, ed);
+
+      const { groups: newGroups, invalidFiles: newInvalids } = groupFilesByDateRange(files, mode, startDate, endDate);
+      setGroups(newGroups);
+      setInvalidFiles(newInvalids);
+
+      const initialStatuses: Record<string, "pending"> = {};
+      newGroups.forEach(g => {
+        initialStatuses[g.targetZipName] = "pending";
+      });
+      setZipStatuses(initialStatuses);
+      setProgress(0);
+    } else {
+      const { groups: newGroups, invalidFiles: newInvalids } = groupFiles(files, mode);
+      setGroups(newGroups);
+      setInvalidFiles(newInvalids);
+
+      const initialStatuses: Record<string, "pending"> = {};
+      newGroups.forEach(g => {
+        initialStatuses[g.targetZipName] = "pending";
+      });
+      setZipStatuses(initialStatuses);
+      setProgress(0);
+    }
+  }, [files, mode, rangeMode, rangeStart, rangeEnd]);
 
   // Apply theme data attribute to body
   useEffect(() => {
@@ -235,6 +263,44 @@ export default function Portal() {
             />
           </div>
 
+          {/* Date Range Compile Mode */}
+          <div className="range-mode-box">
+            <label className="range-toggle">
+              <input
+                type="checkbox"
+                checked={rangeMode}
+                onChange={(e) => setRangeMode(e.target.checked)}
+                disabled={isProcessing}
+              />
+              <span>Compile a date range into one file (e.g. Friday–Sunday)</span>
+            </label>
+
+            {rangeMode && (
+              <div className="range-inputs">
+                <div className="range-input-field">
+                  <label htmlFor="range-start">From</label>
+                  <input
+                    id="range-start"
+                    type="date"
+                    value={rangeStart}
+                    onChange={(e) => setRangeStart(e.target.value)}
+                    disabled={isProcessing}
+                  />
+                </div>
+                <div className="range-input-field">
+                  <label htmlFor="range-end">To</label>
+                  <input
+                    id="range-end"
+                    type="date"
+                    value={rangeEnd}
+                    onChange={(e) => setRangeEnd(e.target.value)}
+                    disabled={isProcessing}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Validation Warnings */}
           {invalidFiles.length > 0 && (
             <div className="alert alert-warning">
@@ -308,7 +374,9 @@ export default function Portal() {
               <FolderArchive className="empty-state-icon" />
               <p className="empty-state-title">No packages to display</p>
               <p className="empty-state-desc">
-                Upload files on the left. They will be parsed, dated back 1 day, and grouped by prefix.
+                {rangeMode && (!rangeStart || !rangeEnd)
+                  ? "Pick a From and To date on the left to compile files in that range into one zip per prefix."
+                  : "Upload files on the left. They will be parsed, dated back 1 day, and grouped by prefix."}
               </p>
             </div>
           ) : (

@@ -21,6 +21,16 @@ export function getOrdinalSuffix(day: number): string {
   }
 }
 
+/**
+ * Formats a date as "26th_May_2026".
+ */
+export function formatOrdinalDate(date: Date): string {
+  const day = date.getDate();
+  const monthName = MONTH_NAMES[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day}${getOrdinalSuffix(day)}_${monthName}_${year}`;
+}
+
 interface ParsedFile {
   prefix: string;
   originalDateStr: string;
@@ -102,12 +112,7 @@ export function parseFilename(filename: string, mode: "merchant" | "bank"): Pars
   prevDate.setDate(prevDate.getDate() - 1);
 
   // 4. Format previous date (e.g., "26th_May_2026")
-  const prevDay = prevDate.getDate();
-  const prevMonthName = MONTH_NAMES[prevDate.getMonth()];
-  const prevYear = prevDate.getFullYear();
-  const suffix = getOrdinalSuffix(prevDay);
-
-  result.previousDayFormatted = `${prevDay}${suffix}_${prevMonthName}_${prevYear}`;
+  result.previousDayFormatted = formatOrdinalDate(prevDate);
   result.isValid = true;
 
   return result;
@@ -159,6 +164,98 @@ export function groupFiles(files: File[], mode: "merchant" | "bank"): {
   });
 
   // Sort groups alphabetically by prefix
+  groups.sort((a, b) => a.prefix.localeCompare(b.prefix));
+
+  return { groups, invalidFiles };
+}
+
+/**
+ * Formats a date range compactly:
+ * - Same month & year: "14th-16th_August_2026"
+ * - Same year, different month: "14th_August-12th_September_2026"
+ * - Different years: "30th_December_2026-2nd_January_2027"
+ */
+export function formatDateRangeLabel(start: Date, end: Date): string {
+  const startDayOrdinal = `${start.getDate()}${getOrdinalSuffix(start.getDate())}`;
+  const endDayOrdinal = `${end.getDate()}${getOrdinalSuffix(end.getDate())}`;
+  const startMonth = MONTH_NAMES[start.getMonth()];
+  const endMonth = MONTH_NAMES[end.getMonth()];
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
+
+  if (startYear !== endYear) {
+    return `${startDayOrdinal}_${startMonth}_${startYear}-${endDayOrdinal}_${endMonth}_${endYear}`;
+  }
+
+  if (start.getMonth() !== end.getMonth()) {
+    return `${startDayOrdinal}_${startMonth}-${endDayOrdinal}_${endMonth}_${startYear}`;
+  }
+
+  return `${startDayOrdinal}-${endDayOrdinal}_${startMonth}_${startYear}`;
+}
+
+/**
+ * Groups files by prefix only, merging every file whose business date
+ * (the date suffix minus 1 day) falls within [rangeStart, rangeEnd] into a
+ * single zip per prefix. Used for the "Date Range" mode (e.g. compiling a
+ * Friday-to-Sunday weekend into one package).
+ */
+export function groupFilesByDateRange(
+  files: File[],
+  mode: "merchant" | "bank",
+  rangeStart: Date,
+  rangeEnd: Date
+): {
+  groups: FileGroup[];
+  invalidFiles: { file: File; error: string }[];
+} {
+  const groupsMap: Record<string, { files: File[]; zipName: string }> = {};
+  const invalidFiles: { file: File; error: string }[] = [];
+
+  const rs = new Date(rangeStart);
+  rs.setHours(0, 0, 0, 0);
+  const re = new Date(rangeEnd);
+  re.setHours(0, 0, 0, 0);
+
+  const rangeLabel = formatDateRangeLabel(rs, re);
+
+  files.forEach(file => {
+    const parsed = parseFilename(file.name, mode);
+    if (!parsed.isValid) {
+      invalidFiles.push({ file, error: parsed.error || "Unknown validation error" });
+      return;
+    }
+
+    // Business date = the file's date suffix minus 1 day (same offset used elsewhere in the app)
+    const businessDate = new Date(parsed.parsedDate);
+    businessDate.setDate(businessDate.getDate() - 1);
+    businessDate.setHours(0, 0, 0, 0);
+
+    if (businessDate < rs || businessDate > re) {
+      invalidFiles.push({
+        file,
+        error: `File date (${parsed.previousDayFormatted}) falls outside the selected range (${formatOrdinalDate(rs)} - ${formatOrdinalDate(re)})`
+      });
+      return;
+    }
+
+    const key = parsed.prefix;
+    if (!groupsMap[key]) {
+      groupsMap[key] = {
+        files: [],
+        zipName: `${parsed.prefix}_${rangeLabel}.zip`
+      };
+    }
+    groupsMap[key].files.push(file);
+  });
+
+  const groups: FileGroup[] = Object.entries(groupsMap).map(([prefix, data]) => ({
+    prefix,
+    targetZipName: data.zipName,
+    files: data.files,
+    originalDateStr: rangeLabel
+  }));
+
   groups.sort((a, b) => a.prefix.localeCompare(b.prefix));
 
   return { groups, invalidFiles };

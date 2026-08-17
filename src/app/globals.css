@@ -276,6 +276,69 @@ body {
   display: none;
 }
 
+/* Date Range Compile Mode */
+.range-mode-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.range-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.range-toggle input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.range-inputs {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background-color: var(--bg-base);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.range-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.range-input-field label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.range-input-field input[type="date"] {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.range-input-field input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 /* Custom Warning Alert */
 .alert {
   padding: 1rem;
